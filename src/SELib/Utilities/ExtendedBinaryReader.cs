@@ -16,7 +16,7 @@ namespace SELib.Utilities
     /// <summary>
     /// Supports custom methods for manipulating data between c++ streams and .net ones
     /// </summary>
-    internal class ExtendedBinaryReader : BinaryReader
+    public class ExtendedBinaryReader : BinaryReader
     {
         public ExtendedBinaryReader(Stream stream)
             : base(stream)
@@ -40,6 +40,25 @@ namespace SELib.Utilities
             }
             // Result
             return StringBuffer;
+        }
+
+        /// <summary>
+        /// Reads a string started with a length stored in ushort
+        /// </summary>
+        /// <returns></returns>
+        public string ReadStringWithUInt16Length()
+        {
+            ushort length = ReadUInt16();
+            return new string(ReadChars(length));
+        }
+
+        /// <summary>
+        /// Skip few bytes
+        /// </summary>
+        /// <param name="len">Length of bytes to skip</param>
+        public void Skip(int len, bool start = false)
+        {
+            BaseStream.Seek(len, start ? SeekOrigin.Begin : SeekOrigin.Current);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace SELib.Utilities
     /// <summary>
     /// Supports custom methods for manipulating data between c++ streams and .net ones
     /// </summary>
-    internal class ExtendedBinaryWriter : BinaryWriter
+    public class ExtendedBinaryWriter : BinaryWriter
     {
         public ExtendedBinaryWriter(Stream stream)
             : base(stream)
@@ -38,6 +38,15 @@ namespace SELib.Utilities
             Write(Encoding.ASCII.GetBytes(value));
             // Write the null-char
             Write((byte)0);
+        }
+
+        /// <summary>
+        /// Skip few bytes
+        /// </summary>
+        /// <param name="len">Length of bytes to skip</param>
+        public void Skip(int len)
+        {
+            BaseStream.Seek(len, SeekOrigin.Current);
         }
     }
 }
