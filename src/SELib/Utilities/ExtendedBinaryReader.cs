@@ -46,10 +46,16 @@ namespace SELib.Utilities
         /// Reads a string started with a length stored in ushort
         /// </summary>
         /// <returns></returns>
-        public string ReadStringWithUInt16Length()
+        public string ReadStringWithUInt16Length(Encoding encoding = null)
         {
             ushort length = ReadUInt16();
-            return new string(ReadChars(length));
+
+            if(encoding == null)
+                return new string(ReadChars(length));
+
+            var bytes = ReadBytes(length);
+
+            return encoding.GetString(bytes);
         }
 
         /// <summary>

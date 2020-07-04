@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -79,13 +80,11 @@ namespace SELib.Utilities
             return new Vector3(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
         }
 
-        public static Vector3 FromMatrix4x4(double[,] m)
+        public Vector3 (Matrix4x4 m)
         {
-            var x = m[0, 3];
-            var y = m[1, 3];
-            var z = m[2, 3];
-
-            return new Vector3(x, y, z);
+            X = m[0, 3];
+            Y = m[1, 3];
+            Z = m[2, 3];
         }
 
         new public static readonly Vector3 Zero = new Vector3() { X = 0, Y = 0, Z = 0 };
@@ -151,17 +150,17 @@ namespace SELib.Utilities
 
             var yaw = (float)Math.Atan2(siny_cosp, cosy_cosp);
 
-            return new Vector3(yaw, pitch, roll);
+            return new Vector3(roll, pitch, yaw);
         }
 
-        public static Quaternion FromEulerAngles(float roll, float pitch, float yaw)
+        public static Quaternion FromEulerAngles(double roll, double pitch, double yaw)
         {
-            var cy = (float)Math.Cos(yaw * 0.5f);
-            var sy = (float)Math.Sin(yaw * 0.5f);
-            var cp = (float)Math.Cos(pitch * 0.5f);
-            var sp = (float)Math.Sin(pitch * 0.5f);
-            var cr = (float)Math.Cos(roll * 0.5f);
-            var sr = (float)Math.Sin(roll * 0.5f);
+            var cy = Math.Cos(yaw * 0.5f);
+            var sy = Math.Sin(yaw * 0.5f);
+            var cp = Math.Cos(pitch * 0.5f);
+            var sp = Math.Sin(pitch * 0.5f);
+            var cr = Math.Cos(roll * 0.5f);
+            var sr = Math.Sin(roll * 0.5f);
 
             return new Quaternion
             {
@@ -183,7 +182,7 @@ namespace SELib.Utilities
             return new Quaternion(Result.X, Result.Y, Result.Z, WCalc);
         }
 
-        public static Quaternion FromMatrix4x4(double[,] m)
+        public Quaternion(Matrix4x4 m)
         {
             double tr = m[0, 0] + m[1, 1] + m[2, 2];
             double x, y, z, w;
@@ -220,7 +219,7 @@ namespace SELib.Utilities
                 z = 0.25f * s;
             }
 
-            return new Quaternion(x, y, z, w);
+            X = x; Y = y; Z = z; W = w;
         }
 
         public static Quaternion operator *(Quaternion left, Quaternion Value)
@@ -271,6 +270,12 @@ namespace SELib.Utilities
             }
         }
 
+        public double this[int x,int y]
+        {
+            get => Mat(x, y);
+            set => Mat(x, y) = value;
+        }
+
         public Matrix4x4(float[,] from)
         {
             for (int i = 0; i < 16; i++)
@@ -280,16 +285,6 @@ namespace SELib.Utilities
 
                 m[x, y] = from[x, y];
             }
-        }
-
-        public static Matrix4x4 CFConvertToNormal()
-        {
-            var mat1 = new Matrix4x4();
-            mat1.Mat(0, 0) = -1;
-
-            var result = mat1;
-
-            return result;
         }
 
         public static Matrix4x4 operator *(Matrix4x4 left, Matrix4x4 Value)
@@ -372,7 +367,12 @@ namespace SELib.Utilities
 
             var targetMatrix = this * maq;
 
-            var quat = Quaternion.FromMatrix4x4(targetMatrix.m);
+            var quat = new Quaternion(targetMatrix);
+
+            // IDK why but hey it works
+            quat.X *= -1;
+            quat.Y *= -1;
+            quat.Z *= -1;
 
             return quat;
         }
